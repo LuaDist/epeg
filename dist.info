@@ -1,0 +1,15 @@
+--- This file is part of LuaDist project
+
+name = "epeg"
+version = "0.5"
+
+desc = "Epeg is a library to read PEGs from textfiles and apply them to input to create abstract syntax trees."
+author = "Victor Camps"
+license = "GNU GPL"
+maintainer = "Peter Kapec"
+url = "http://luaforge.net/projects/epeg/"
+
+depends = {
+	"lua ~> 5.1",
+	"lpeg >= 0.9"
+}

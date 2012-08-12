@@ -1,7 +1,7 @@
 --- This file is part of LuaDist project
 
 name = "epeg"
-version = "0.5"
+version = "0.5.7"
 
 desc = "Epeg is a library to read PEGs from textfiles and apply them to input to create abstract syntax trees."
 author = "Victor Camps"

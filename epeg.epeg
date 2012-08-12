@@ -1,0 +1,98 @@
+# Extendet peg for epeg itself.
+
+Grammar <- Spacing Rule+ error ("Expected at least one rule in file.") EndOfFile
+
+Rule <- <:<type::"Rule">
+          <name:Identifier>
+		  leftarrow error ("'<-' expected after name of rule.")
+		  <rule:Choice error ("'Pattern / ... / ...' expected after '<-'.")>
+		> Spacing
+
+Choice <- <type::"Choice"> <:List> (slash <:List>)*
+
+List <- <type::"List">(<:(Collecting / Pattern / FunctionCall)>)+
+         error ("Expected Pattern, 'resume', < ... > or { ... }.")
+
+Collecting <- begin (AnonymousFixedNode / AnonymousGrabbingNode /
+                     FixedNode / GrabbingNode / CollectInput)
+			  end error ("Expected '>' after '<...'.")
+
+AnonymousFixedNode <- <type::"AnonymousFixedNode"> colon2 <grabs:String error ("Expected string after '(::'.")>
+
+AnonymousGrabbingNode <- <type::"AnonymousGrabbingNode"> colon <grabs:List?>
+
+FixedNode <- <type::"FixedNode"> <name:Identifier> colon2
+			 <grabs:String error ("Expected string after '(Node::'.")>
+
+GrabbingNode <- <type::"GrabbingNode"> <name:Identifier> colon <grabs:List?>
+
+CollectInput <- <type::"CollectInput"> <grabs:List?>
+
+Pattern <- <type::"Pattern">
+           ((and <prefix::"&"> / not <prefix::"!">)
+		    <pattern:
+			 (FunctionCall /
+			  dot <type::"Dot"> /
+			  <name:Identifier> <type::"RuleName"> /
+			  <value:Class> <type::"Class"> /
+			  <value:String> <type::"String"> /
+			  open
+			  Choice error ("'.../...' Expected after ')'.")
+			  close error ("'(' expected after '.../...'.")) error (" '{ ... }', '.', '[...]', \"...\" or rulename expected after &/!.")>
+			 (query <repetition::"?">)? /
+		    <pattern:
+			 (dot <type::"Dot"> /
+			  <name:IdentifierWithoutLeftArrow> <type::"RuleName"> /
+			  <value:Class> <type::"Class"> /
+			  <value:String> <type::"String"> /
+			  open
+			  Choice error ("'.../...' Expected after ')'.")
+			  close error ("'(' expected after '.../...'."))>
+            (query <repetition::"?"> / star <repetition::"*"> / plus <repetition::"+">)?)
+            ErrorHandling?
+
+IdentifierWithoutLeftArrow <- Identifier !leftarrow
+
+ErrorHandling <- Warning / Error #Recover?
+Error <- <errorhandling:
+          <type::"error"> 'error' ForcedSeparation open error ("'(' expected after 'error'.")
+          <message:String error ("Expected 'errormessage'.")>>
+		 close error ("')' expected after errormessage")
+Warning <- <errorhandling:
+            <type::"warning"> 'warning' ForcedSeparation open error ("'(' expected after 'warning'.")
+            <message:String error ("Expected \"warningmessage\".")>>
+		   close error ("')' expected after warningmessage")
+
+FunctionCall <- <type::"FunctionCall">
+                '{:' Spacing <function:(<[a-zA-Z_][a-zA-Z_.:0-9]*>) error ("Name of function expected after '{:'.")>
+				Spacing
+				'}' error ("Expected '}' after name of function.")
+				Spacing
+
+Identifier      <- !(('error' / 'warning' / 'recover' / 'resume') ForcedSeparation)
+                   <[a-zA-Z_][a-zA-Z_0-9]*> Spacing
+String          <- "'" <(!"'" ("\\'"? / .))*> "'" Spacing /
+				   '"' <(!'"' ('\\"'? / .))*> '"' Spacing
+Class           <- '[' <'^'? ']'? [^]]*> ']' Spacing
+
+leftarrow       <- '<-' Spacing
+slash           <- '/'  Spacing
+and             <- '&'  Spacing
+not             <- '!'  Spacing
+open            <- '('  Spacing
+close           <- ')'  Spacing
+query           <- '?'  Spacing
+star            <- '*'  Spacing
+plus            <- '+'  Spacing
+begin           <- '<'  Spacing
+end             <- '>'  Spacing
+colon           <- ':'  Spacing
+colon2          <- '::' Spacing
+dot             <- '.'  Spacing
+
+Spacing         <- ( [%s]+ / Comment )*
+Comment         <- '#' [^\r\n]* #EndOfLine
+#EndOfLine      <- '\r\n' / '\n' / '\r'
+EndOfFile       <- !.
+
+ForcedSeparation <- &[^%w] Spacing

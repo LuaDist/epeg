@@ -1,0 +1,157 @@
+Introduction
+============
+
+Epeg is a library to read PEGs from textfiles and apply them to input to create
+abstract syntax trees.
+
+Features:
+- The complete PEG can be stored in a single plain textfile.
+- You define in the PEG itself how the AST should look and what input you
+  want to store in the nodes.
+- You can print parsing errors for malformed input.
+- You can print warnings for input which is valid, but deprecated/
+  dangerous/... .
+- You can call functions to implement actions or extended tests.
+- You can dump the grammar into a lua-table instead of reading the PEG
+  everytime from textfile, which enhances performance.
+- The AST stores for every node at which position/row/column in the inputstream
+  it got created.
+- Classes use lua syntax for patternmatching (for example [^%l] or [%L])
+- Lua escapesequences get converted into their binary counterparts while
+  reading the PEG (only single characters).
+- Checks for possible left infinite recursion while parsing the PEG.
+
+
+Note: If you are only interested in running actions while parsing input, you
+should consider lpeg instead, because it is much better for this kind of work.
+
+
+Usage
+=====
+
+- store the PEG in a textfile
+- use epeg = dofile("epeg.lua") to include the library (not a fancy lua module)
+- use epeg.read_grammar("example.epeg") to get the grammar
+- use epeg.parse_text(grammar, text) to parse some text and get an AST
+- use epeg.dump_grammar(grammar, name, filename) to dump the grammar as
+  lua table and retrieve it later for better runtime performance, instead of
+  reading the PEG from textfile everytime.
+
+
+Files
+=====
+
+epeg.lua        - the library
+epeg.epeg       - the PEG for PEG itself (used for development)
+epegscanner.lua - use it to dump the grammar from epeg.epeg
+                  (result stored in r1.lua)
+TODO            - tasks planned/possible
+README          - this file
+COPYING         - copyright notices
+
+
+Handling Errors and Warnings
+============================
+
+If you want to handle errors and warnings, just append
+'error ("message")' or 'warning ("message")' aftern a pattern. You can't
+append both (yet.):
+
+FunctionName <- ([a-z][A-Z]*) error ("Expected at least one letter.")
+Pragma       <- 'pragma' [%s] warning ("The use of #pragma is deprecated.")
+
+If a pattern with an error attribute fails, the parser aborts and prints the
+error message.
+
+You can't append both error/warning to a node.
+
+
+Grabbing Nodes and Input
+========================
+
+Nodes are represented by tables in lua. The following indexes are used for
+every node and cannot be used as nodenames:
+
+position/
+row/
+column: stores the position where the node in the input stream
+        got created.
+parent: a backlink to the parent node or nil if no parentnode exists.
+pindex: index of the node in it's parent.
+        Thus node.parent[node.pindex] == node.
+string: grabbed input.
+
+
+'< Pattern >' grabs the matched pattern and appends the result in the actual
+node to node.string (initialized with ""). If Pattern fails, nothing gets
+stored. You can nest this construct.
+
+'<NodeName: Pattern >' creates a new node with the name NodeName as a childnode
+of the actual node. If a childnode with the same name already exists, the
+operation fails and the parser stops with an errormessage. For Pattern the
+actual node becomes the newly created node.
+
+'<NodeName::"String">' is similar to '<:NodeName: Pattern>', but stores a
+fixed String as content of the node in node.string.
+
+'<: Pattern >' creates a node with no name. The name is set to the lowest free
+positive integer in the parentnode starting with 1. This is useful to create
+lists of nodes.
+
+'<::"String">' is similar to '<: Pattern>' but creates a node with a fixed
+string as content.
+
+
+Calling Functions
+=================
+
+You can call functions from the PEG to handle certain situations. The function
+gets as first argument the parser with the actual position (position/row/column)
+and as second argument the actual node.
+
+To add a functioncall use {: FunctionName }. If you want a function to check
+for a condition, add a &/! in front of it:
+
+&{: check_condition }
+
+
+Standard PEG constructs
+=======================
+
+(You should read peg-popl04 for a thorough understanding)
+
+Examples:
+
+rule declaration: Rulename <- ...
+class:            [a-zA-Z_.]
+choice:           "hello" / "goodbye"
+subpatterns:      (!r1 r2* / r3)+ / (r4)* r5
+
+
+Library
+=======
+
+You can use the following functions in the library:
+
+epeg.read_grammar(filename)
+
+Reads a PEG from file filename and returns the grammar. Returns false and
+prints error messages to stdout if fails.
+
+epeg.parse_text(grammar, text)
+
+Parses the text using grammar. Grammar has to be a valid grammar created by
+epeg.read_grammar or stored by epeg.dump_grammar. Returns the AST if successful,
+else false. Prints all messages to stdout.
+
+epeg.dump_grammar(grammar, name, filename)
+
+Dumps the grammar as lua-table in file filename with the name name. if name
+is not a string, it will use 'return {...' instead of 'name = {...'. If
+filename is not given the output will go to stdout. Prints all messages to
+stdout. If you want to use the dumped grammar, just use the table as the
+grammar argument with parse_text next time.
+
+
+All other functions are either for debugging purposes or get called by these 3
+functions.

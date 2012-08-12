@@ -1,0 +1,47 @@
+Features
+========
+
+Possible enhancements in the future:
+
+- <| Pattern1 | Pattern2 > [error [recover]?]?
+  Creates a node which has the name read in by Pattern1 (using <...>) and the
+  content read in by Pattern2. Has an optional error and recover argument in
+  case the name is already in use. Pattern1 is not allowed to create nodes.
+  Usage is for making the epeg for epeg itself easier.
+
+- <| Pattern1 || String > [error [recover]?]?
+  Similar to <| ... | ... > but the new node gets a fixed string as content.
+
+- Pattern1 != Pattern2
+  Handles Pattern1 and compares the successfully matched input with Pattern2.
+  If Pattern2 matches the input, Pattern1 fails, else it succeeds. Usage is
+  for matching for example variable names against a few keywords.
+
+- Allow both error and warning after a pattern.
+
+- epeg
+  A program which can be used to parse/dump/convert pegs/input from commandline
+  without writing any source code.
+
+- except \[][abnrt"'] no escapesequences get converted correctly.
+
+- recover(Pattern) and resume
+  Recover and resume allow to recover from parsing errors signaled by error.
+  Recover allows to walk forward in the input stream while traversing the
+  ruleset to the next reentry point marked with resume where operation resumes
+  normally. After an resume, the resulting tree is marked as dirty.
+
+- epeg.create_parser(grammar, name, filename)
+  Creates an optimized parser from a given grammar which can be used for
+  faster parsing of input.
+
+- { code }
+  Executes the given code if the parser encounters this rule. Problem is that
+  it introduces language specific code into pegs which make it less portable.
+  Could be that { code } will get replaced with {: functionname } for easier
+  porting.
+
+- runtime performance
+  epeg is really slow, because it uses a grammar to parse PEGs itself, which
+  is 10-20 times slower than a handwritten "optimized" parser.
+

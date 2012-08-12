@@ -7,8 +7,9 @@
 project ( epeg NONE )
 cmake_minimum_required ( VERSION 2.8 )
 include ( cmake/dist.cmake )
+include ( lua )
 
 # Install all files and documentation
-install ( FILES epeg.lua DESTINATION ${INSTALL_LMOD} )
-install ( FILES epegscanner.lua epeg.epeg DESTINATION ${INSTALL_FOO} )
-install ( FILES COPYING README TODO DESTINATION ${INSTALL_DATA} )
+install_lua_module ( epeg epeg.lua )
+install_test ( epegscanner.lua epeg.epeg )
+install_data ( COPYING README )

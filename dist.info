@@ -1,0 +1,31 @@
+type = "x86"
+arch = "Windows"
+author = "Victor Camps"
+depends = {
+[[lua ~> 5.1]],
+[[lpeg >= 0.9]],
+}
+
+desc = "Epeg is a library to read PEGs from textfiles and apply them to input to create abstract syntax trees."
+version = "0.5.7"
+maintainer = "Peter Kapec"
+files = {
+Runtime = {
+[[lib\lua\epeg.lua]],
+}
+,
+Data = {
+[[share\epeg\COPYING]],
+[[share\epeg\README]],
+}
+,
+Test = {
+[[share\epeg\test\epegscanner.lua]],
+[[share\epeg\test\epeg.epeg]],
+}
+,
+}
+
+license = "GNU GPL"
+name = "epeg"
+url = "http://luaforge.net/projects/epeg/"

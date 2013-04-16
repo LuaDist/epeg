@@ -744,8 +744,8 @@ epeg.esc_table = {
 	["\v"] = '\\v',
 	["\""] = '\\\"',
 	["\'"] = '\\\'',
-	["\["] = '\\\[',
-	["\]"] = '\\\]',
+	["["] = '\\[',
+	["]"] = '\\]',
 	["\\"] = '\\\\',
 }
 
@@ -760,8 +760,8 @@ epeg.unesc_table = {
 	["\\v"] = '\v',
 	['\\"'] = '\"',
 	["\\'"] = "\'",
-	["\\["] = '\[',
-	["\\]"] = '\]',
+	["\\["] = '[',
+	["\\]"] = ']',
 	["\\\\"] = '\\',
 }
 
@@ -1180,7 +1180,7 @@ epeg.grammar = {
 										},
 										["errorhandling"] = {
 											["message"] = {
-												["string"] = " \'{ ... }\', \'.\', \'\[...\]\', \"...\" or rulename expected after &/!.",
+												["string"] = " \'{ ... }\', \'.\', \'[...]\', \"...\" or rulename expected after &/!.",
 											},
 											["string"] = "",
 											["type"] = {
@@ -2883,7 +2883,7 @@ epeg.grammar = {
 							["string"] = "String",
 						},
 						["value"] = {
-							["string"] = "\[",
+							["string"] = "[",
 						},
 					},
 					["type"] = {
@@ -2922,7 +2922,7 @@ epeg.grammar = {
 									["string"] = "String",
 								},
 								["value"] = {
-									["string"] = "\]",
+									["string"] = "]",
 								},
 							},
 							["type"] = {
@@ -2940,7 +2940,7 @@ epeg.grammar = {
 									["string"] = "Class",
 								},
 								["value"] = {
-									["string"] = "^\]",
+									["string"] = "^]",
 								},
 							},
 							["type"] = {
@@ -2964,7 +2964,7 @@ epeg.grammar = {
 							["string"] = "String",
 						},
 						["value"] = {
-							["string"] = "\]",
+							["string"] = "]",
 						},
 					},
 					["type"] = {
